@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+
+		<meta charset="utf-8" />
+		<title>Ahorcado</title>
+		<style type="text/css">
+			body
+			{
+				background-color:#E9E9F1;
+				color: black;
+				text-align: center;
+				font-family: "Tahoma", "Geneva", sans-serif; 
+			}
+		</style>
+		<script type="text/javascript">
+			
+			function EscribirPalabra()
+			{
+				var palabraSecreta = document.getElementById('palabraSecreta').value.trim();
+				if(palabraSecreta.length <= 3)
+				{
+					document.getElementById('palabra').style.display = 'inline';
+					document.getElementById('validar').style.display = 'none';
+				} else {
+					document.getElementById('palabra').style.display = 'none';
+					document.getElementById('validar').style.display = 'inline';
+					var encontradas ="";
+					for (var i=1; i<=palabraSecreta.length; i++)
+					{
+						encontradas=encontradas+" _ ";
+					}
+
+					document.getElementById('mostarPalabra').innerHTML = "<h2>"+encontradas+"</h2>";
+				}
+			}
+
+			function ValidarPalabra()
+			{
+				var palabraSecreta = document.getElementById('palabraSecreta').value.trim().toUpperCase();
+				var letradigitada = document.getElementById('letra').value.trim().toUpperCase();
+				var encontradas ="";
+				var yaIngresadasEncontradas = (document.getElementById('letradigitada').value.trim().toUpperCase()).split("-");
+				var intentosErroneos = document.getElementById('numeroIntentosErroneos').value.trim();
+				if(intentosErroneos == null || intentosErroneos == ""){
+					intentosErroneos = parseInt(0);
+				}
+				var exiteEnPalabra = false;
+				for (var i1=0; i1<palabraSecreta.length; i1++)
+				{
+					var letrapalabra = palabraSecreta.substring(i1,i1+1);
+					if (letrapalabra==letradigitada) 
+					{
+						exiteEnPalabra = true;
+						break;
+					}
+				}
+				if(exiteEnPalabra){
+					
+					var esNueva = true;
+					for(var j1=0; j1<yaIngresadasEncontradas.length; j1++)
+					{
+						//-----------var ubicaLetra = yaIngresadasEncontradas.substring(j1,j1+1);
+						if(yaIngresadasEncontradas[j1] ==letradigitada){
+							esNueva = false;
+						}
+					}
+					if(esNueva){
+						//-----------yaIngresadasEncontradas = yaIngresadasEncontradas+letradigitada;
+						yaIngresadasEncontradas.push(letradigitada);
+					}
+				} else {
+					intentosErroneos = parseInt(intentosErroneos) +1;
+				}
+
+
+				var finaliza = true;
+				for (var i2=0; i2<palabraSecreta.length; i2++)
+				{
+					var letrapalabraUbica = palabraSecreta.substring(i2,i2+1);
+					var ubicar = false;
+					for(var j2=0; j2<yaIngresadasEncontradas.length; j2++)
+					{
+						//-----------var ubicaLetra = yaIngresadasEncontradas.substring(j2,j2+1);
+						if (letrapalabraUbica==yaIngresadasEncontradas[j2]){
+							ubicar = true;
+						}
+					}
+					if (ubicar) 
+					{
+						encontradas=encontradas+" "+letrapalabraUbica+" ";
+					}
+					else
+					{
+						encontradas=encontradas+" _ ";
+						finaliza = false;
+					}
+				}
+				
+				var ahorcadoImage = new Image();
+				ahorcadoImage.src = "./Ahorcado3.png";
+				var canvas;
+				var ahorca;
+				
+				if(intentosErroneos > 0){
+					canvas = document.getElementById("ahorcadoImgCanv");
+					canvas.width = 144;
+					canvas.height = 260;
+					
+					ahorca = sprite ({context: canvas.getContext("2d"),
+											width: 144,
+											height: 250,
+											image: ahorcadoImage,
+											numfallo : intentosErroneos-1});
+				}
+				ahorcadoImage.onload = function(){
+					ahorca.render();
+				}
+				if(intentosErroneos == 5){
+					document.getElementById('validar').style.display = 'none';
+					document.getElementById('lblReto').style.display = 'none';
+					document.getElementById('mostarPalabra').innerHTML = "<h2>"+encontradas+" <br/><br/> Finaliza juego Perdiste !!!  </h2>";
+					document.getElementById('reiniciar').style.display = 'inline';
+				} else {
+					if(finaliza)
+					{
+						document.getElementById('validar').style.display = 'none';
+						document.getElementById('lblReto').style.display = 'none';
+						document.getElementById('mostarPalabra').innerHTML = "<h2>"+encontradas+" <br/><br/> Encontraste la palabra Felicitaciones !!!  </h2>";
+						document.getElementById('reiniciar').style.display = 'inline';
+					} else {
+						document.getElementById('mostarPalabra').innerHTML = "<h2>"+encontradas+"</h2>";
+					}
+				}
+
+				if(yaIngresadasEncontradas == null){
+					yaIngresadasEncontradas = "";
+				} 
+				
+				var almacenarLetras = "";
+				for(var j3=0; j3<yaIngresadasEncontradas.length; j3++)
+				{
+					almacenarLetras = almacenarLetras + yaIngresadasEncontradas[j3];
+					if(j3 < (yaIngresadasEncontradas.length -1)){
+						almacenarLetras = almacenarLetras + "-";
+					}
+				}
+				document.getElementById('letradigitada').value = almacenarLetras;
+				document.getElementById('numeroIntentosErroneos').value = intentosErroneos;
+				document.getElementById('letra').value = "";
+			}
+
+			function sprite (options) {
+				var that = {};
+				that.context = options.context;
+				that.width = options.width;
+				that.height = options.height;
+				that.image = options.image;
+				that.numfallo = options.numfallo;
+
+					that.render = function () {
+												that.context.drawImage(
+																		that.image,
+																		that.width * that.numfallo,
+																		0,
+																		that.width,
+																		that.height,
+																		0,
+																		0,
+																		that.width,
+																		that.height);
+											};
+				return that;
+			}
+
+		</script>
+	</head>
+
+	<body width="100%" height="100">
+		<h1>Adivina la palabra</h1>
+		<div margin-right:210px;">
+			<img src="ahorcado4.png" width="444" height="240" />
+		</div>
+		<div id="lblReto"><p>Crees que puedes ganarme? </p></div>
+		<div id="mostarPalabra"></div>
+		<br/>
+		<table id="palabra" align="center">
+			<tr>
+				<td>
+					Escribe la palabra secreta: <input id="palabraSecreta" type="password"  name="IngresoPalabra">
+					<input type="submit" value="Guardar" onclick="EscribirPalabra()"/>
+				</td>
+			</tr>
+		</table>
+
+		<table id="validar" style="display:none;">
+			<tr>
+				<td>
+					Revisa la letra: <input type="text" id="letra" maxlength="1" />
+					<input type="submit" value="validar" onclick="ValidarPalabra()" />
+				</td>
+			</tr>
+		</table>
+		<br/>
+		<canvas id="ahorcadoImgCanv"  width="0" height="0"></canvas></div>
+		<br/>
+		<table id="reiniciar" style="display:none;">
+			<tr>
+				<td>
+					<input type="submit" value="Reiniciar" onclick="location.reload(true);" />
+				</td>
+			</tr>
+		</table>
+		<input type="hidden" id="letradigitada"/>
+		<input type="hidden" id="numeroIntentosErroneos"/>
+	</body>
+
+</html>
